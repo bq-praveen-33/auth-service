@@ -19,8 +19,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     ],
     secret: process.env.NEXTAUTH_SECRET,
     session: {
-      maxAge: 5 * 60, // 5 minutes
-      updateAge: 5 * 60, // 5 minutes
+      maxAge: 60 * 60 * 24, // 1 days
+      updateAge: 60 * 60 * 24, // 1 days
     },
     cookies: {
       sessionToken: {
