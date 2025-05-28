@@ -27,13 +27,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         name: `${cookiePrefix}next-auth.session-token`,
         options: {
           httpOnly: true,
-          sameSite: "lax",
+          sameSite: "none",
           path: "/",
-          secure: useSecureCookies,
-          domain:
-            hostName === "localhost"
-              ? "localhost"
-              : process.env.NEXT_PUBLIC_DOMAIN_WHITELIST,
+          secure: true,
+          domain: hostName === "localhost" ? "localhost" : undefined, // Let the browser handle the domain
         },
       },
     },

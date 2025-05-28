@@ -6,7 +6,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     await new Promise<void>((resolve, reject) => {
       cors({
-        origin: (process.env.CORS_ORIGIN || "https://guidelines.betaque.com").split(',').map(origin => origin.trim()),
+        origin: true, // Allow all origins
         methods: ["GET", "POST", "OPTIONS"],
         credentials: true,
       })(req, res, (result) => {
