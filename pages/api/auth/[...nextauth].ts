@@ -18,38 +18,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
-    debug: true,
-    callbacks: {
-      async signIn({ user, account, profile, email, credentials }) {
-        console.log('Sign in callback:', { user, account, profile });
-        return true;
-      },
-      async jwt({ token, user, account, profile }) {
-        console.log('JWT callback:', { token, user, account });
-        // Pass user info to token on first sign in
-        if (account && user) {
-          token.email = user.email;
-          token.name = user.name;
-          token.picture = user.image;
-        }
-        return token;
-      },
-      async session({ session, token }) {
-        console.log('Session callback:', { session, token });
-        // Pass token info to session
-        if (token) {
-          session.user = {
-            email: token.email,
-            name: token.name,
-            image: token.picture,
-          };
-        }
-        return session;
-      }
-    },
     session: {
-      strategy: "jwt",
       maxAge: 60 * 60 * 24, // 1 day
+      updateAge: 60 * 60 * 24, // 1 day
     },
     cookies: {
       sessionToken: {
