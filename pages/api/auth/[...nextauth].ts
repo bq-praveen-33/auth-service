@@ -27,9 +27,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         name: `${cookiePrefix}next-auth.session-token`,
         options: {
           httpOnly: true,
-          sameSite: "lax",
+          sameSite: "none",
           path: "/",
-          secure: useSecureCookies,
+          secure: true,
           domain: hostName === "localhost" ? "localhost" : `.${hostName}`,
         },
       },

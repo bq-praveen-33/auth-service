@@ -6,9 +6,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     await new Promise<void>((resolve, reject) => {
       cors({
-        origin: (process.env.CORS_ORIGIN || "https://guidelines.betaque.com").split(',').map(origin => origin.trim()),
+        origin: [
+          ...(process.env.CORS_ORIGIN || "https://guidelines.betaque.com").split(',').map(origin => origin.trim()),
+          'http://localhost:3000'
+        ],
         methods: ["GET", "POST", "OPTIONS"],
         credentials: true,
+        allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
       })(req, res, (result) => {
         if (result instanceof Error) {
           return reject(result);
