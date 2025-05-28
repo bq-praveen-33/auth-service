@@ -18,9 +18,24 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       }),
     ],
     secret: process.env.NEXTAUTH_SECRET,
+    debug: true,
+    callbacks: {
+      async signIn({ user, account, profile, email, credentials }) {
+        console.log('Sign in callback:', { user, account, profile });
+        return true;
+      },
+      async session({ session, user, token }) {
+        console.log('Session callback:', { session, user, token });
+        return session;
+      },
+      async jwt({ token, user, account, profile }) {
+        console.log('JWT callback:', { token, user, account });
+        return token;
+      }
+    },
     session: {
-      maxAge: 60 * 60 * 24, // 1 days
-      updateAge: 60 * 60 * 24, // 1 days
+      strategy: "jwt",
+      maxAge: 60 * 60 * 24, // 1 day
     },
     cookies: {
       sessionToken: {
