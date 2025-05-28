@@ -19,18 +19,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     ],
     secret: process.env.NEXTAUTH_SECRET,
     session: {
-      maxAge: 60 * 60 * 24, // 1 day
-      updateAge: 60 * 60 * 24, // 1 day
+      maxAge: 60 * 60 * 24, // 1 days
+      updateAge: 60 * 60 * 24, // 1 days
     },
     cookies: {
       sessionToken: {
         name: `${cookiePrefix}next-auth.session-token`,
         options: {
           httpOnly: true,
-          sameSite: "none",
+          sameSite: "lax",
           path: "/",
-          secure: true,
-          domain: hostName === "localhost" ? "localhost" : `.${hostName}`,
+          secure: useSecureCookies,
+          domain:
+            hostName === "localhost"
+              ? "localhost"
+              : process.env.NEXT_PUBLIC_DOMAIN_WHITELIST,
         },
       },
     },
