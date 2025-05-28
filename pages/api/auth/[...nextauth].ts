@@ -24,13 +24,27 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         console.log('Sign in callback:', { user, account, profile });
         return true;
       },
-      async session({ session, user, token }) {
-        console.log('Session callback:', { session, user, token });
-        return session;
-      },
       async jwt({ token, user, account, profile }) {
         console.log('JWT callback:', { token, user, account });
+        // Pass user info to token on first sign in
+        if (account && user) {
+          token.email = user.email;
+          token.name = user.name;
+          token.picture = user.image;
+        }
         return token;
+      },
+      async session({ session, token }) {
+        console.log('Session callback:', { session, token });
+        // Pass token info to session
+        if (token) {
+          session.user = {
+            email: token.email,
+            name: token.name,
+            image: token.picture,
+          };
+        }
+        return session;
       }
     },
     session: {
@@ -45,10 +59,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           sameSite: "lax",
           path: "/",
           secure: useSecureCookies,
-          domain:
-            hostName === "localhost"
-              ? "localhost"
-              : process.env.NEXT_PUBLIC_DOMAIN_WHITELIST,
+          domain: hostName === "localhost" ? "localhost" : `.${hostName}`,
         },
       },
     },
