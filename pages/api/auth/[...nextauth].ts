@@ -8,6 +8,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const cookiePrefix = useSecureCookies ? "__Secure-" : "";
   const hostName = new URL(process.env.NEXTAUTH_URL || "http://localhost:3000")
     .hostname;
+    
+  // Get the request origin or referer to determine the source domain
+  const origin = req.headers.origin || req.headers.referer || "";
+  const requestHost = origin ? new URL(origin).hostname : "";
+  
+  // Determine if the request is coming from an allowed external domain
+  const isExternalDomain = requestHost === "books.betaque.com";
+  
+  // Set cookie domain based on the request source
+  const cookieDomain = isExternalDomain 
+    ? ".betaque.com"  // Use root domain for sharing between subdomains
+    : hostName === "localhost" ? "localhost" : undefined;
 
   return NextAuth(req, res, {
     providers: [
@@ -27,10 +39,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         name: `${cookiePrefix}next-auth.session-token`,
         options: {
           httpOnly: true,
-          sameSite: "none",
+          sameSite: isExternalDomain ? "none" : "lax",
           path: "/",
-          secure: true,
-          domain: hostName === "localhost" ? "localhost" : undefined, // Let the browser handle the domain
+          secure: useSecureCookies,
+          domain: cookieDomain,
         },
       },
     },
