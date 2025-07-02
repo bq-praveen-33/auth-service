@@ -1,21 +1,26 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import cors from "cors";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    await new Promise<void>((resolve, reject) => {
-      cors({
-        origin: true, // Allow all origins
-        methods: ["GET", "POST", "OPTIONS"],
-        credentials: true,
-      })(req, res, (result) => {
-        if (result instanceof Error) {
-          return reject(result);
-        }
-        return resolve();
-      });
-    });
+    // Get origin from request to support multiple domains
+    const origin = req.headers.origin || '';
+    const allowedOrigins = ['https://books.betaque.com', 'http://localhost:3000', 'http://localhost:3001'];
+    
+    if (origin && allowedOrigins.includes(origin)) {
+      // Add CORS headers to support cross-origin requests
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    }
+
+    // Handle preflight OPTIONS request
+    if (req.method === 'OPTIONS') {
+      res.status(200).end();
+      return;
+    }
+
     const session = await getSession({ req });
     const redirect = req.query.redirect as string;
 
