@@ -6,7 +6,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   // Get origin from request to support multiple domains
   const origin = req.headers.origin || '';
-  const allowedOrigins = ['https://books.betaque.com', 'http://localhost:3000','http://localhost:3001'];
+  const allowedOrigins = ['https://books.betaque.com', 'http://localhost:3000', 'http://localhost:3001'];
   
   if (origin && allowedOrigins.includes(origin)) {
     // Add CORS headers to support cross-origin requests
@@ -23,11 +23,23 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   // Check if we're running in development
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = process.env.NODE_ENV === 'development' || origin.includes('localhost');
   
   // Detect if we're using HTTPS
-  const useSecureCookies = process.env.NEXTAUTH_URL?.startsWith("https://") && !isDevelopment;
+  const useSecureCookies = !isDevelopment;
   const cookiePrefix = useSecureCookies ? "__Secure-" : "";
+
+  // Determine cookie domain based on environment
+  let cookieDomain;
+  const hostName = new URL(process.env.NEXTAUTH_URL || "http://localhost:3000").hostname;
+  
+  if (hostName.includes('betaque.com')) {
+    // In production on betaque.com domain
+    cookieDomain = '.betaque.com'; // Shared domain for all betaque.com subdomains
+  } else if (hostName === 'localhost' || isDevelopment) {
+    // In development on localhost
+    cookieDomain = 'localhost';
+  }
 
   return NextAuth(req, res, {
     providers: [
@@ -47,11 +59,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         name: `${cookiePrefix}next-auth.session-token`,
         options: {
           httpOnly: true,
-          // Use 'lax' for same-origin and 'none' for cross-origin
-          sameSite: isDevelopment ? "lax" : "none",
+          sameSite: isDevelopment ? "lax" : "none", // Use lax for localhost, none for cross-domain
           path: "/",
-          // In development, don't require secure; in production, always require secure
-          secure: !isDevelopment,
+          secure: useSecureCookies, // Must be secure in production
+          domain: cookieDomain, // Set domain appropriately
         },
       },
     },

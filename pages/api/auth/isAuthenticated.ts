@@ -6,13 +6,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     // Get origin from request to support multiple domains
     const origin = req.headers.origin || '';
     const allowedOrigins = ['https://books.betaque.com', 'http://localhost:3000', 'http://localhost:3001'];
-    
+        
     if (origin && allowedOrigins.includes(origin)) {
       // Add CORS headers to support cross-origin requests
       res.setHeader('Access-Control-Allow-Credentials', 'true');
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
     }
 
     // Handle preflight OPTIONS request
@@ -21,9 +21,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       return;
     }
 
+    // Get the session
     const session = await getSession({ req });
     const redirect = req.query.redirect as string;
 
+    // Check if the session exists from cookies
     if (session) {
       const userEmail = session.user?.email;
       if (
