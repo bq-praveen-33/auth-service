@@ -11,7 +11,6 @@ const Home = () => {
   >("pending");
   const router = useRouter();
 
-  const DOMAIN_WHITELIST = process.env.NEXT_PUBLIC_DOMAIN_WHITELIST;
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -25,14 +24,12 @@ const Home = () => {
           const data = await response.json();
 
           if (
-            data.isAuthenticated &&
-            (DOMAIN_WHITELIST || "betaque.com").split(',').map(domain => domain.trim()).some(domain => data.user.user.email.endsWith(domain))
+            data.isAuthenticated
           ) {
             setAuthStatus("granted");
 
             Cookies.set("next-auth.session-token", data.user, {
               path: "/",
-              domain: `.${(DOMAIN_WHITELIST || "betaque.com").split(',')[0].trim()}`,
               secure: true,
             });
 

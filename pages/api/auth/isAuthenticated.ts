@@ -28,10 +28,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     // Check if the session exists from cookies
     if (session) {
       const userEmail = session.user?.email;
-      if (
-        userEmail &&
-        (process.env.NEXT_PUBLIC_DOMAIN_WHITELIST || "betaque.com").split(',').map(domain => domain.trim()).some(domain => userEmail.endsWith(domain))
-      ) {
+      if (userEmail) {
         // User is authenticated and from the correct domain
         res.status(200).json({
           isAuthenticated: true,
