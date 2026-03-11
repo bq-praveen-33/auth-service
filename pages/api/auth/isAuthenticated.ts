@@ -5,8 +5,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     // Get origin from request to support multiple domains
     const origin = req.headers.origin || '';
-    const allowedOrigins = ['https://books.betaque.com', 'http://localhost:3000', 'http://localhost:3001'];
-        
+    const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',')
+    : [];
+    console.log(origin, allowedOrigins);
+
     if (origin && allowedOrigins.includes(origin)) {
       // Add CORS headers to support cross-origin requests
       res.setHeader('Access-Control-Allow-Credentials', 'true');
